@@ -1,0 +1,28 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "django-honeywords"
+version = "0.0.1"
+description = "Honeywords implementation for Django with optional honeychecker separation."
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "MIT" }
+authors = [
+  { name = "David Iliopoulos" }
+]
+dependencies = [
+  "Django>=4.2",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8",
+  "pytest-django>=4.8",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+DJANGO_SETTINGS_MODULE = "example_project.settings"
+pythonpath = ["src", "."]
