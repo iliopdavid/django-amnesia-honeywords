@@ -3,6 +3,8 @@ from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import AbstractBaseUser
 from django.db import transaction
 
+from .conf import get_setting
+from .honeychecker_client import set_real_index, HoneycheckerError
 from .generator import SimpleMutationGenerator
 from .models import HoneywordSet, HoneywordHash, HoneycheckerRecord, find_matching_index
 
@@ -32,20 +34,23 @@ def initialize_user_honeywords(user, real_password: str, k: int = 20, generator=
         ]
         HoneywordHash.objects.bulk_create(hashes)
 
-        HoneycheckerRecord.objects.update_or_create(user=user, defaults={"real_index": real_index})
+        mode = get_setting("HONEYCHECKER_MODE")
+
+        if mode == "local":
+            HoneycheckerRecord.objects.update_or_create(user=user, defaults={"real_index": real_index})
+        else:
+            # remote mode
+            set_real_index(str(user.pk), real_index)
 
         user.set_unusable_password()
         user.save(update_fields=["password"])
 
-def verify_password(user, password: str) -> str:
+def verify_password(user, password: str) -> int | None:
     """
-    Returns: "real", "honey", "invalid"
+    Returns matched index if password matches one of the k hashes, else None.
+    Honeychecker (local/remote) decides whether it's real.
     """
     if not hasattr(user, "honeyword_set"):
-        return "invalid"
+        return None
     hset = user.honeyword_set
-    idx = find_matching_index(hset, password)
-    if idx is None:
-        return "invalid"
-    real_idx = user.honeychecker_record.real_index
-    return "real" if idx == real_idx else "honey"
+    return find_matching_index(hset, password)

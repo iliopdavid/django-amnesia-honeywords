@@ -4,10 +4,10 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.backends import BaseBackend
 from django_honeywords.conf import get_setting
 from django_honeywords.events import log_event
-from django_honeywords.models import HoneywordEvent
+from django_honeywords.models import HoneywordEvent, HoneycheckerRecord
 from django_honeywords.signals import honeyword_detected
 from django_honeywords.policy import is_locked, apply_reset, apply_lock, get_state
-
+from django_honeywords.honeychecker_client import verify_index, HoneycheckerError
 
 from .service import verify_password
 
@@ -44,40 +44,54 @@ class HoneywordsBackend(BaseBackend):
             log_event(user=user, username=username, outcome=HoneywordEvent.OUTCOME_INVALID, request=request)
             return None
 
-        outcome = verify_password(user, password)
+        idx = verify_password(user, password)
+        if idx is None:
+            log_event(user=user, username=username, outcome=HoneywordEvent.OUTCOME_INVALID, request=request)
+            return None
 
-        if outcome == "real":
+        mode = get_setting("HONEYCHECKER_MODE")
+
+        # Determine if idx is real using local or remote honeychecker
+        try:
+            if mode == "local":
+                real_idx = user.honeychecker_record.real_index
+                is_real = (idx == real_idx)
+            else:
+                is_real = verify_index(str(user.pk), idx)
+        except (HoneycheckerError, Exception):
+            # fail closed by default
+            if get_setting("HONEYCHECKER_FAIL_CLOSED"):
+                log_event(user=user, username=username, outcome=HoneywordEvent.OUTCOME_INVALID, request=request)
+                return None
+            # fail open (not recommended, but configurable)
+            is_real = True
+
+        if is_real:
             if get_setting("LOG_REAL_SUCCESS"):
                 log_event(user=user, username=username, outcome=HoneywordEvent.OUTCOME_REAL, request=request)
             return user
 
-        if outcome == "honey":
-            event = log_event(
-                user=user,
-                username=username,
-                outcome=HoneywordEvent.OUTCOME_HONEY,
-                request=request,
+        # honeyword path
+        event = log_event(user=user, username=username, outcome=HoneywordEvent.OUTCOME_HONEY, request=request)
+        honeyword_detected.send(
+            sender=self.__class__,
+            user=user,
+            username=username,
+            request=request,
+            event=event,
+        )
+
+        action = get_setting("ON_HONEYWORD")
+        if action == "reset":
+            apply_reset(user)
+        elif action == "lock":
+            apply_lock(
+                user,
+                base_seconds=get_setting("LOCK_BASE_SECONDS"),
+                max_seconds=get_setting("LOCK_MAX_SECONDS"),
             )
 
-            honeyword_detected.send(
-                sender=self.__class__,
-                user=user,
-                username=username,
-                request=request,
-                event=event,
-            )
-
-            action = get_setting("ON_HONEYWORD")
-            if action == "reset":
-                apply_reset(user)
-            elif action == "lock":
-                apply_lock(
-                    user,
-                    base_seconds=get_setting("LOCK_BASE_SECONDS"),
-                    max_seconds=get_setting("LOCK_MAX_SECONDS"),
-                )
-
-            return None
+        return None
 
         # invalid
         log_event(user=user, username=username, outcome=HoneywordEvent.OUTCOME_INVALID, request=request)

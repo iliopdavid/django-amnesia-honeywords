@@ -14,6 +14,7 @@ authors = [
 ]
 dependencies = [
   "Django>=4.2",
+  "requests>=2.31",
 ]
 
 [project.optional-dependencies]
