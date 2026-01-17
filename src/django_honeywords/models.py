@@ -27,6 +27,35 @@ class HoneycheckerRecord(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="honeychecker_record")
     real_index = models.PositiveSmallIntegerField()
 
+
+class HoneywordEvent(models.Model):
+    OUTCOME_REAL = "real"
+    OUTCOME_HONEY = "honey"
+    OUTCOME_INVALID = "invalid"
+
+    OUTCOME_CHOICES = [
+        (OUTCOME_REAL, "Real password"),
+        (OUTCOME_HONEY, "Honeyword"),
+        (OUTCOME_INVALID, "Invalid"),
+    ]
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL)
+    username = models.CharField(max_length=150, blank=True, default="")
+    outcome = models.CharField(max_length=16, choices=OUTCOME_CHOICES)
+    created_at = models.DateTimeField(default=timezone.now)
+
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    user_agent = models.TextField(blank=True, default="")
+
+class HoneywordUserState(models.Model):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="honeywords_state")
+
+    must_reset = models.BooleanField(default=False)
+
+    locked_until = models.DateTimeField(null=True, blank=True)
+    lock_count = models.PositiveIntegerField(default=0)
+    last_lock_at = models.DateTimeField(null=True, blank=True)
+
 def find_matching_index(hset: HoneywordSet, password: str) -> int | None:
     # Small k -> simple linear scan is fine for MVP
     for hw in hset.hashes.all().order_by("index"):
