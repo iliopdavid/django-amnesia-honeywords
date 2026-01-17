@@ -20,6 +20,14 @@ MIDDLEWARE = [
     # "django.contrib.messages.middleware.MessageMiddleware",
 ]
 
+AUTHENTICATION_BACKENDS = [
+    "django_honeywords.backend.HoneywordsBackend",
+]
+
+PASSWORD_HASHERS = [
+    "django.contrib.auth.hashers.MD5PasswordHasher",
+]
+
 ROOT_URLCONF = "example_project.urls"
 
 DATABASES = {
