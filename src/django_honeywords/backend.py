@@ -18,6 +18,15 @@ class HoneywordsBackend(BaseBackend):
     Returns user on success, otherwise None.
     """
 
+    def user_can_authenticate(self, user) -> bool:
+        """Mirror Django's default inactive-user handling.
+
+        Some Django versions expose this helper on ModelBackend but not on
+        BaseBackend.
+        """
+
+        return getattr(user, "is_active", True)
+
     def authenticate(self, request, username=None, password=None, **kwargs):
         if password is None:
             return None
@@ -34,6 +43,11 @@ class HoneywordsBackend(BaseBackend):
             user = User._default_manager.get_by_natural_key(username)
         except User.DoesNotExist:
             log_event(user=None, username=username, outcome=HoneywordEvent.OUTCOME_INVALID, request=request)
+            return None
+
+        # Respect Django's inactive-user semantics (and any custom override).
+        if not self.user_can_authenticate(user):
+            log_event(user=user, username=username, outcome=HoneywordEvent.OUTCOME_INVALID, request=request)
             return None
 
         # Policy gate: lock + must_reset block auth

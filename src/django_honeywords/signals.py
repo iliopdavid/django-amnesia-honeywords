@@ -32,9 +32,11 @@ def _on_user_password_change(sender, instance, **kwargs):
         return
 
     if old is not None and old != instance.password:
+        username_field = getattr(instance, "USERNAME_FIELD", "username")
+        who = getattr(instance, username_field, None) or instance.pk
         logger.warning(
             "User %s password changed via set_password() but AmnesiaSet was "
             "not re-initialized. Call amnesia_initialize() after password "
             "changes to keep honeywords in sync.",
-            instance.username,
+            who,
         )

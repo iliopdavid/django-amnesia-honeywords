@@ -57,6 +57,26 @@ The key advantage: **no separate Honeychecker service is needed**. The system ne
 pip install django-amnesia-honeywords
 ```
 
+## What this package does (and does not do)
+
+**What it does**
+
+- Provides a Django **authentication backend** (`django_honeywords.backend.HoneywordsBackend`) that checks passwords against an Amnesia honeyword set.
+- Stores `k` password candidates per user (hashed) with probabilistic **marking**; on login it can detect use of an **unmarked** candidate as a breach signal.
+- Logs outcomes (`real`/`honey`/`invalid`) and emits a `honeyword_detected` signal for alerting/automation.
+
+**What it does *not* do automatically**
+
+- Installing the package does **not** change your project's authentication by itself.
+    You must explicitly set `AUTHENTICATION_BACKENDS` to use `HoneywordsBackend`.
+- It cannot initialize existing users from an already-hashed password. You need the user's **plaintext password** (signup / password change / controlled migration).
+
+**Important integration notes**
+
+- When you initialize honeywords for a user, this package sets the user's Django password to **unusable** (`set_unusable_password()`) to reduce bypass risk if `ModelBackend` is enabled.
+- If you enable `django.contrib.auth.backends.ModelBackend` alongside `HoneywordsBackend`, then **users without an AmnesiaSet** can still authenticate using the default Django password backend.
+    In production, prefer using only `HoneywordsBackend`, or ensure all users are initialized.
+
 Or install from source:
 
 ```bash
@@ -115,27 +135,17 @@ from django_honeywords.amnesia_service import amnesia_initialize_from_settings
 amnesia_initialize_from_settings(user, "real_password")
 ```
 
-### 2. Run Migrations
+### 4. (Recommended) Remove ModelBackend in production
 
-```bash
-python manage.py migrate django_honeywords
-```
-
-### 3. Initialize Honeywords for Users
-
-For new users or to migrate existing users:
-
-```bash
-python manage.py amnesia_init_user <username> --password <password>
-```
-
-Or programmatically:
+For most deployments, configure only the honeywords backend:
 
 ```python
-from django_honeywords.amnesia_service import amnesia_initialize_from_settings
-
-amnesia_initialize_from_settings(user, "real_password")
+AUTHENTICATION_BACKENDS = [
+    "django_honeywords.backend.HoneywordsBackend",
+]
 ```
+
+If you keep `ModelBackend` enabled, make sure you understand the bypass implications for users who are not initialized.
 
 ## Configuration Options
 

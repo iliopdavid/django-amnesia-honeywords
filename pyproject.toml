@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "django-amnesia-honeywords"
-version = "0.0.1"
+version = "0.0.2"
 description = "Amnesia honeywords implementation for Django — breach detection without a separate honeychecker."
 readme = "README.md"
 requires-python = ">=3.12"

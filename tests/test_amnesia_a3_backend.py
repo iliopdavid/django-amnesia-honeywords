@@ -85,3 +85,26 @@ def test_backend_amnesia_invalid_rejects(settings):
     )
 
     assert authenticate(username="carol", password="wrong") is None
+
+
+@pytest.mark.django_db
+def test_backend_inactive_user_rejected(settings):
+    settings.AUTHENTICATION_BACKENDS = ["django_honeywords.backend.HoneywordsBackend"]
+
+    User = get_user_model()
+    u = User.objects.create_user(username="inactive")
+    u.is_active = False
+    u.save(update_fields=["is_active"])
+
+    real = "Secret123"
+    words = [real, "h1", "h2", "h3", "h4"]
+
+    amnesia_initialize(
+        u, real,
+        k=5, p_mark=0.0, p_remark=0.0,
+        generator=FixedGenerator(words),
+        real_index=0,
+        rng=FixedRNG([0.9]),
+    )
+
+    assert authenticate(username="inactive", password=real) is None

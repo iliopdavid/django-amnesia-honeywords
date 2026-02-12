@@ -32,7 +32,7 @@ class Command(BaseCommand):
 
         User = get_user_model()
         try:
-            user = User.objects.get(username=username)
+            user = User._default_manager.get_by_natural_key(username)
         except User.DoesNotExist:
             raise CommandError(f"User not found: {username}")
 
