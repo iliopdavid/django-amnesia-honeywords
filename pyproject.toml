@@ -45,3 +45,17 @@ dev = [
 testpaths = ["tests"]
 DJANGO_SETTINGS_MODULE = "example_project.settings_test"
 pythonpath = ["src", "."]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/django_honeywords"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+  "/src",
+  "/tests",
+  "/docs",
+  "/example_project",
+  "/README.md",
+  "/LICENSE",
+  "/pyproject.toml",
+]
