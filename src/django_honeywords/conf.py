@@ -6,10 +6,10 @@ DEFAULTS = {
     "LOCK_BASE_SECONDS": 60,
     "LOCK_MAX_SECONDS": 3600,
 
-    # Phase 4
-    "HONEYCHECKER_MODE": "remote",  # remote | local
-    "HONEYCHECKER_URL": "http://localhost:8001",
-    "HONEYCHECKER_FAIL_CLOSED": True,
+    # Amnesia defaults
+    "AMNESIA_K": 20,
+    "AMNESIA_P_MARK": 0.1,
+    "AMNESIA_P_REMARK": 0.01,
 }
 
 

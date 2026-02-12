@@ -1,32 +1,6 @@
 from django.conf import settings
-from django.contrib.auth.hashers import check_password, make_password
 from django.db import models
 from django.utils import timezone
-
-class HoneywordSet(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="honeyword_set")
-    k = models.PositiveSmallIntegerField(default=20)
-    created_at = models.DateTimeField(default=timezone.now)
-    algorithm_version = models.CharField(max_length=32, default="v1")
-
-class HoneywordHash(models.Model):
-    set = models.ForeignKey(HoneywordSet, on_delete=models.CASCADE, related_name="hashes")
-    index = models.PositiveSmallIntegerField()
-    password_hash = models.CharField(max_length=256)
-
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=["set", "index"], name="uniq_honeywordhash_set_index"),
-        ]
-
-class HoneycheckerRecord(models.Model):
-    """
-    MVP honeychecker: real index stored locally.
-    Later Phase 4 replaces this with remote honeychecker service.
-    """
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="honeychecker_record")
-    real_index = models.PositiveSmallIntegerField()
-
 
 class HoneywordEvent(models.Model):
     OUTCOME_REAL = "real"
@@ -56,9 +30,34 @@ class HoneywordUserState(models.Model):
     lock_count = models.PositiveIntegerField(default=0)
     last_lock_at = models.DateTimeField(null=True, blank=True)
 
-def find_matching_index(hset: HoneywordSet, password: str) -> int | None:
-    # Small k -> simple linear scan is fine for MVP
-    for hw in hset.hashes.all().order_by("index"):
-        if check_password(password, hw.password_hash):
-            return hw.index
-    return None
+class AmnesiaSet(models.Model):
+    """Amnesia scheme state (no stored real index)."""
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="amnesia_set",
+    )
+    k = models.PositiveSmallIntegerField(default=20)
+    p_mark = models.FloatField(default=0.1)
+    p_remark = models.FloatField(default=0.01)
+    created_at = models.DateTimeField(default=timezone.now)
+    algorithm_version = models.CharField(max_length=32, default="amnesia_v1")
+
+
+class AmnesiaCredential(models.Model):
+    aset = models.ForeignKey(
+        AmnesiaSet,
+        on_delete=models.CASCADE,
+        related_name="credentials",
+    )
+    index = models.PositiveSmallIntegerField()
+    password_hash = models.CharField(max_length=256)
+    marked = models.BooleanField(default=False)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["aset", "index"],
+                name="uniq_amnesia_cred_aset_index",
+            ),
+        ]
