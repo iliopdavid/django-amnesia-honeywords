@@ -145,7 +145,10 @@ def amnesia_check(user, password: str, *, rng: RNG | None = None) -> str:
     if _bernoulli(rng, aset.p_remark):
         # Remark rule:
         # - keep the used credential marked=True
-        # - for each other credential: marked = marked OR Bernoulli(p_mark)
+        # - for each other credential: re-sample marked ~ Bernoulli(p_mark)
+        #
+        # Important: remarking must NOT monotonically accumulate marks over time,
+        # otherwise detection probability collapses as all entries become marked.
         with transaction.atomic():
             cred = AmnesiaCredential.objects.select_for_update().get(pk=cred.pk)
             if not cred.marked:
@@ -157,13 +160,11 @@ def amnesia_check(user, password: str, *, rng: RNG | None = None) -> str:
                 .filter(aset=aset)
                 .exclude(pk=cred.pk)
             )
-            changed = []
             for o in others:
-                if not o.marked and _bernoulli(rng, aset.p_mark):
-                    o.marked = True
-                    changed.append(o)
-            if changed:
-                AmnesiaCredential.objects.bulk_update(changed, ["marked"])
+                o.marked = _bernoulli(rng, aset.p_mark)
+
+            if others:
+                AmnesiaCredential.objects.bulk_update(others, ["marked"])
 
     return "success"
 

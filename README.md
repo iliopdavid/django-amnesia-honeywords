@@ -1,6 +1,8 @@
-# django-honeywords
+# django-amnesia-honeywords
 
-A Django authentication backend implementing the **Amnesia honeywords** scheme for breach detection — without requiring a separate honeychecker service. When attackers crack password hashes and attempt login with a stolen credential, the system detects whether the submitted password is real or a decoy (honeyword), enabling real-time intrusion detection.
+A Django authentication backend implementing the **Amnesia honeywords** scheme for breach detection — without requiring a separate honeychecker service.
+
+When attackers crack a credential database and attempt online login with a stolen credential, the backend detects whether the submitted password is a *marked* credential or an *unmarked* decoy (honeyword).
 
 ## Overview
 
@@ -52,14 +54,14 @@ The key advantage: **no separate Honeychecker service is needed**. The system ne
 ## Installation
 
 ```bash
-pip install django-honeywords
+pip install django-amnesia-honeywords
 ```
 
 Or install from source:
 
 ```bash
-git clone https://github.com/your-username/django-honeywords.git
-cd django-honeywords
+git clone https://github.com/iliopdavid/django-amnesia-honeywords.git
+cd django-amnesia-honeywords
 pip install -e .
 ```
 
@@ -83,10 +85,34 @@ HONEYWORDS = {
     "AMNESIA_P_MARK": 0.1,      # Probability of marking a honeyword
     "AMNESIA_P_REMARK": 0.01,   # Probability of re-marking on success
     "ON_HONEYWORD": "log",      # "log" | "reset" | "lock"
-    "LOG_REAL_SUCCESS": False,   # Log successful real password logins
+    "LOG_REAL_SUCCESS": False,   # Log successful *marked* credential logins (real or marked honeyword)
     "LOCK_BASE_SECONDS": 60,    # Base lockout duration
     "LOCK_MAX_SECONDS": 3600,   # Maximum lockout duration
 }
+```
+
+### 2. Run Migrations
+
+```bash
+python manage.py migrate django_honeywords
+```
+
+### 3. Initialize Users (Important)
+
+This package cannot derive honeywords from an existing hash: you must initialize users while you have their **plaintext password** (signup, password change, migration script).
+
+- Management command (for migration / admin scripts):
+
+```bash
+python manage.py amnesia_init_user <username> --password <password>
+```
+
+- Programmatic initialization:
+
+```python
+from django_honeywords.amnesia_service import amnesia_initialize_from_settings
+
+amnesia_initialize_from_settings(user, "real_password")
 ```
 
 ### 2. Run Migrations
@@ -119,9 +145,15 @@ amnesia_initialize_from_settings(user, "real_password")
 | `AMNESIA_P_MARK` | `0.1` | Probability of marking each honeyword during initialization |
 | `AMNESIA_P_REMARK` | `0.01` | Probability of re-marking other candidates on successful login |
 | `ON_HONEYWORD` | `"log"` | Action on honeyword detection: `"log"`, `"reset"`, or `"lock"` |
-| `LOG_REAL_SUCCESS` | `False` | Whether to log successful authentications with real passwords |
+| `LOG_REAL_SUCCESS` | `False` | Whether to log successful authentications with *marked* credentials |
 | `LOCK_BASE_SECONDS` | `60` | Base duration for account lockout |
 | `LOCK_MAX_SECONDS` | `3600` | Maximum lockout duration (exponential backoff capped here) |
+
+## Operational Notes
+
+- **System checks**: run `python manage.py check` to surface configuration warnings (e.g., wildcard hosts, test hashers, backend fallbacks).
+- **Event semantics**: logging a “real” outcome corresponds to a **marked credential login** (real password or marked honeyword). Amnesia intentionally cannot distinguish those.
+- **Performance**: authentication checks up to `k` candidates (linear scan). Choose `k` and password hasher parameters accordingly.
 
 ## Components
 
@@ -209,10 +241,28 @@ pytest tests/test_amnesia_a3_backend.py   # Authentication backend
 pytest tests/test_amnesia_a4_command.py   # Management command
 ```
 
+## Deployment Notes
+
+- Do not deploy the `example_project/settings.py` configuration as-is.
+- Use `example_project/settings_prod.py` as a production settings template (set `DJANGO_SECRET_KEY` and `DJANGO_ALLOWED_HOSTS`).
+- Avoid enabling `django.contrib.auth.backends.ModelBackend` in production unless you fully understand the bypass risk for users who were not initialized with an `AmnesiaSet`.
+- Do not use `MD5PasswordHasher` in production (it is used only in `example_project/settings_test.py` to keep tests fast).
+
+Recommended production policy:
+
+- Prefer `ON_HONEYWORD = "lock"` (or `"log"`) unless you have a complete password-reset UX wired up.
+- If you set `ON_HONEYWORD = "reset"`, your application must provide password reset/change views and messaging so users can recover.
+
+## Documentation
+
+- See `docs/deployment.md` for a production deployment checklist.
+- See `docs/integration.md` for guidance on initializing users during signup/password-change flows.
+- See `docs/releasing.md` for GitHub + PyPI publishing steps.
+
 ### Project Structure
 
 ```
-django-honeywords/
+django-amnesia-honeywords/
 ├── src/django_honeywords/
 │   ├── apps.py              # Django app config
 │   ├── amnesia_service.py   # Core amnesia service

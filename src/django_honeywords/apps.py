@@ -6,6 +6,9 @@ class DjangoHoneywordsConfig(AppConfig):
     name = "django_honeywords"
 
     def ready(self):
+        # Register system checks
+        from . import checks  # noqa: F401
+
         from django.contrib.auth import get_user_model
         from django.db.models.signals import pre_save
         from .signals import _on_user_password_change

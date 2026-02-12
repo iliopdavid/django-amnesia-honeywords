@@ -1,12 +1,12 @@
-"""Development settings for the example Django project.
+"""Test settings for django-amnesia-honeywords.
 
-This module is intentionally permissive for local development.
+These settings intentionally use fast hashers and permissive hosts to keep the
+unit test suite quick and deterministic.
 
-- For tests, use `example_project.settings_test` (configured in pyproject.toml).
-- For production, use `example_project.settings_prod` as a template.
+Do NOT use these settings in production.
 """
 
-SECRET_KEY = "dev-only-secret-key"
+SECRET_KEY = "test-only-secret-key"
 DEBUG = True
 ALLOWED_HOSTS = ["*"]
 
@@ -28,11 +28,13 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
 ]
 
+# Tests may create users without initializing Amnesia; keep fallback enabled here.
 AUTHENTICATION_BACKENDS = [
     "django_honeywords.backend.HoneywordsBackend",
-    "django.contrib.auth.backends.ModelBackend",  # fallback for admin/users without AmnesiaSet
+    "django.contrib.auth.backends.ModelBackend",
 ]
 
+# Fast hasher for tests.
 PASSWORD_HASHERS = [
     "django.contrib.auth.hashers.MD5PasswordHasher",
 ]

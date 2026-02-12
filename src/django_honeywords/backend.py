@@ -19,12 +19,19 @@ class HoneywordsBackend(BaseBackend):
     """
 
     def authenticate(self, request, username=None, password=None, **kwargs):
-        if username is None or password is None:
+        if password is None:
             return None
 
         User = get_user_model()
+        username_field = getattr(User, "USERNAME_FIELD", "username")
+        if username is None:
+            username = kwargs.get(username_field)
+
+        if username is None:
+            return None
         try:
-            user = User.objects.get(username=username)
+            # Respect custom user models and normalization rules.
+            user = User._default_manager.get_by_natural_key(username)
         except User.DoesNotExist:
             log_event(user=None, username=username, outcome=HoneywordEvent.OUTCOME_INVALID, request=request)
             return None
@@ -40,7 +47,7 @@ class HoneywordsBackend(BaseBackend):
 
         if verdict == "success":
             if get_setting("LOG_REAL_SUCCESS"):
-                # In Amnesia, success means a *marked* credential matched.
+                # In Amnesia, success means a *marked* credential matched (real or honeyword).
                 log_event(user=user, username=username, outcome=HoneywordEvent.OUTCOME_REAL, request=request)
             return user
 

@@ -8,7 +8,9 @@ class HoneywordEvent(models.Model):
     OUTCOME_INVALID = "invalid"
 
     OUTCOME_CHOICES = [
-        (OUTCOME_REAL, "Real password"),
+        # NOTE: In Amnesia, a successful login means a *marked credential* matched.
+        # This can be either the real password or a marked honeyword.
+        (OUTCOME_REAL, "Marked credential"),
         (OUTCOME_HONEY, "Honeyword"),
         (OUTCOME_INVALID, "Invalid"),
     ]
