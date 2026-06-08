@@ -16,17 +16,6 @@ On login:
 
 The key advantage: **no separate Honeychecker service is needed**. The system never stores which index is the real password — security comes from the probabilistic marking scheme.
 
-## Help this research
-
-> This package is part of an MSc thesis at TU Delft investigating honeyword
-> adoption in practice. If you tried (or chose not to) deploy this package,
-> please take 2–3 minutes to fill in the anonymous survey — your experience
-> directly shapes the research findings.
->
-> **[→ Take the anonymous survey (2–3 min)](https://forms.gle/4ZVDXJotDdebgHcA6)**
-
-All responses are anonymous. No personal data is collected.
-
 
 ## Features
 
@@ -309,42 +298,6 @@ django-amnesia-honeywords/
 3. **Parameter Tuning**: The `p_mark` and `p_remark` parameters control the trade-off between false positive rate and detection sensitivity. See the Amnesia paper for guidance on choosing values.
 
 4. **Password Reset Flow**: When `ON_HONEYWORD = "reset"`, users flagged with `must_reset` should be redirected to a password change page. Integrate this with your application's auth flow.
-
-## For Researchers
-
-This package is a research artifact developed as part of an MSc thesis at
-Delft University of Technology:
-
-> **Honeywords in Practice: Investigating Adoption and Barriers to Deployment**
-> David Iliopoulos, TU Delft, 2026
-
-### Research goals
-
-The package serves two purposes:
-1. Demonstrate the **deployment feasibility** of the Amnesia honeyword scheme
-   in a real-world Django context.
-2. Empirically study **adoption friction** — what makes developers adopt or
-   avoid honeyword systems in practice.
-
-### Participate
-
-If you installed, evaluated, or chose not to deploy this package, your
-experience is valuable data. Please fill in the anonymous survey:
-
-**[→ Anonymous adoption survey (2–3 min)](https://forms.gle/4ZVDXJotDdebgHcA6)**
-
-### Citation
-
-If you use this package or reference it in academic work:
-
-```bibtex
-@software{iliopoulos2026honeywords,
-  author  = {Iliopoulos, David},
-  title   = {django-amnesia-honeywords},
-  year    = {2026},
-  url     = {https://github.com/iliopdavid/django-amnesia-honeywords}
-}
-```
 
 ## References
 
