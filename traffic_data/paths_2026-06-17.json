@@ -1,0 +1,38 @@
+[
+  {
+    "path": "/iliopdavid/django-amnesia-honeywords",
+    "title": "Overview",
+    "count": 2,
+    "uniques": 1
+  },
+  {
+    "path": "/iliopdavid/django-amnesia-honeywords/blob/main/docs/releasing.md",
+    "title": "/blob/main/docs/releasing.md",
+    "count": 2,
+    "uniques": 1
+  },
+  {
+    "path": "/iliopdavid/django-amnesia-honeywords/tree/main",
+    "title": "/tree/main",
+    "count": 2,
+    "uniques": 1
+  },
+  {
+    "path": "/iliopdavid/django-amnesia-honeywords/tree/main/docs",
+    "title": "/tree/main/docs",
+    "count": 2,
+    "uniques": 1
+  },
+  {
+    "path": "/iliopdavid/django-amnesia-honeywords/actions",
+    "title": "/actions",
+    "count": 1,
+    "uniques": 1
+  },
+  {
+    "path": "/iliopdavid/django-amnesia-honeywords/delete/main/docs/releasing.md",
+    "title": "/delete/main/docs/releasing.md",
+    "count": 1,
+    "uniques": 1
+  }
+]
