@@ -1,0 +1,72 @@
+name: Save Traffic Stats
+
+on:
+  schedule:
+    - cron: '0 9 * * *'
+  workflow_dispatch:
+
+jobs:
+  traffic:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Fetch all traffic data
+        env:
+          GH_TOKEN: ${{ secrets.TRAFFIC_TOKEN }}
+        run: |
+          DATE=$(date +%Y-%m-%d)
+          mkdir -p traffic_data
+          BASE="https://api.github.com/repos/iliopdavid/django-amnesia-honeywords"
+
+          # Page views (unique visitors + total views, daily breakdown)
+          curl -s -H "Authorization: token $GH_TOKEN" \
+            "$BASE/traffic/views" > traffic_data/views_$DATE.json
+
+          # Git clones (unique cloners + total clones, daily breakdown)
+          curl -s -H "Authorization: token $GH_TOKEN" \
+            "$BASE/traffic/clones" > traffic_data/clones_$DATE.json
+
+          # Top referrers (where traffic came from, last 14 days)
+          curl -s -H "Authorization: token $GH_TOKEN" \
+            "$BASE/traffic/referrers" > traffic_data/referrers_$DATE.json
+
+          # Most visited paths/files in the repo
+          curl -s -H "Authorization: token $GH_TOKEN" \
+            "$BASE/traffic/popular/paths" > traffic_data/paths_$DATE.json
+
+          # Stars with timestamps (who starred and when)
+          curl -s -H "Authorization: token $GH_TOKEN" \
+            -H "Accept: application/vnd.github.v3.star+json" \
+            "$BASE/stargazers" > traffic_data/stars_$DATE.json
+
+          # Forks
+          curl -s -H "Authorization: token $GH_TOKEN" \
+            "$BASE/forks" > traffic_data/forks_$DATE.json
+
+          # Watchers
+          curl -s -H "Authorization: token $GH_TOKEN" \
+            "$BASE/subscribers" > traffic_data/watchers_$DATE.json
+
+          # General repo stats (stars count, forks count, watchers)
+          curl -s -H "Authorization: token $GH_TOKEN" \
+            "$BASE" | python3 -c "
+          import sys, json
+          d = json.load(sys.stdin)
+          print(json.dumps({
+            'date': '$DATE',
+            'stars': d['stargazers_count'],
+            'forks': d['forks_count'],
+            'watchers': d['subscribers_count'],
+            'open_issues': d['open_issues_count'],
+            'size_kb': d['size']
+          }, indent=2))" > traffic_data/summary_$DATE.json
+
+      - name: Commit data
+        run: |
+          DATE=$(date +%Y-%m-%d)
+          git config user.name "David Iliopoulos"
+          git config user.email "davidiliopoulos@gmail.com"
+          git add traffic_data/
+          git diff --cached --quiet || git commit -m "Traffic snapshot $DATE"
+          git push
