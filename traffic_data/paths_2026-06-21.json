@@ -1,0 +1,62 @@
+[
+  {
+    "path": "/iliopdavid/django-amnesia-honeywords",
+    "title": "Overview",
+    "count": 5,
+    "uniques": 2
+  },
+  {
+    "path": "/iliopdavid/django-amnesia-honeywords/actions",
+    "title": "/actions",
+    "count": 4,
+    "uniques": 1
+  },
+  {
+    "path": "/iliopdavid/django-amnesia-honeywords/actions/workflows/traffic.yml",
+    "title": "/actions/workflows/traffic.yml",
+    "count": 3,
+    "uniques": 1
+  },
+  {
+    "path": "/iliopdavid/django-amnesia-honeywords/tree/main",
+    "title": "/tree/main",
+    "count": 3,
+    "uniques": 1
+  },
+  {
+    "path": "/iliopdavid/django-amnesia-honeywords/blob/main/.github/workflows/traffic.yml",
+    "title": "/blob/main/.github/workflows/traffic.yml",
+    "count": 2,
+    "uniques": 1
+  },
+  {
+    "path": "/iliopdavid/django-amnesia-honeywords/blob/main/docs/releasing.md",
+    "title": "/blob/main/docs/releasing.md",
+    "count": 2,
+    "uniques": 1
+  },
+  {
+    "path": "/iliopdavid/django-amnesia-honeywords/tree/main/.github/workflows",
+    "title": "/tree/main/.github/workflows",
+    "count": 2,
+    "uniques": 1
+  },
+  {
+    "path": "/iliopdavid/django-amnesia-honeywords/tree/main/docs",
+    "title": "/tree/main/docs",
+    "count": 2,
+    "uniques": 1
+  },
+  {
+    "path": "/iliopdavid/django-amnesia-honeywords/actions/runs/27705544781",
+    "title": "/actions/runs/27705544781",
+    "count": 1,
+    "uniques": 1
+  },
+  {
+    "path": "/iliopdavid/django-amnesia-honeywords/actions/runs/27705544781/job/81952982771",
+    "title": "/actions/runs/27705544781/job/81952982771",
+    "count": 1,
+    "uniques": 1
+  }
+]
