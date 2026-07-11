@@ -1,0 +1,50 @@
+[
+  {
+    "path": "/iliopdavid/django-amnesia-honeywords/pulse",
+    "title": "/pulse",
+    "count": 2,
+    "uniques": 1
+  },
+  {
+    "path": "/iliopdavid/django-amnesia-honeywords",
+    "title": "Overview",
+    "count": 1,
+    "uniques": 1
+  },
+  {
+    "path": "/iliopdavid/django-amnesia-honeywords/actions",
+    "title": "/actions",
+    "count": 1,
+    "uniques": 1
+  },
+  {
+    "path": "/iliopdavid/django-amnesia-honeywords/graphs/code-frequency",
+    "title": "/graphs/code-frequency",
+    "count": 1,
+    "uniques": 1
+  },
+  {
+    "path": "/iliopdavid/django-amnesia-honeywords/graphs/commit-activity",
+    "title": "/graphs/commit-activity",
+    "count": 1,
+    "uniques": 1
+  },
+  {
+    "path": "/iliopdavid/django-amnesia-honeywords/network",
+    "title": "/network",
+    "count": 1,
+    "uniques": 1
+  },
+  {
+    "path": "/iliopdavid/django-amnesia-honeywords/network/dependencies",
+    "title": "/network/dependencies",
+    "count": 1,
+    "uniques": 1
+  },
+  {
+    "path": "/iliopdavid/django-amnesia-honeywords/tree/main/traffic_data",
+    "title": "/tree/main/traffic_data",
+    "count": 1,
+    "uniques": 1
+  }
+]
