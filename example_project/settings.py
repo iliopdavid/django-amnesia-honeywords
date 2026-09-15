@@ -1,6 +1,10 @@
 """Development settings for the example Django project.
 
-This module is intentionally permissive for local development.
+Do NOT use these settings in production.
+
+This module is intentionally permissive for local development: it ships a
+hard-coded `SECRET_KEY`, `DEBUG = True`, a wildcard `ALLOWED_HOSTS`, the
+insecure `MD5PasswordHasher`, and keeps `ModelBackend` enabled as a fallback.
 
 - For tests, use `example_project.settings_test` (configured in pyproject.toml).
 - For production, use `example_project.settings_prod` as a template.

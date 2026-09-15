@@ -1,5 +1,9 @@
 # django-amnesia-honeywords
 
+[![PyPI version](https://img.shields.io/pypi/v/django-amnesia-honeywords.svg)](https://pypi.org/project/django-amnesia-honeywords/)
+[![CI](https://github.com/iliopdavid/django-amnesia-honeywords/actions/workflows/ci.yml/badge.svg)](https://github.com/iliopdavid/django-amnesia-honeywords/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/iliopdavid/django-amnesia-honeywords/blob/main/LICENSE)
+
 A Django authentication backend implementing the **Amnesia honeywords** scheme for breach detection — without requiring a separate honeychecker service.
 
 When attackers crack a credential database and attempt online login with a stolen credential, the backend detects whether the submitted password is a *marked* credential or an *unmarked* decoy (honeyword).
@@ -266,25 +270,29 @@ Recommended production policy:
 
 ## Documentation
 
+- See `docs/configuration.md` for the full settings reference.
 - See `docs/deployment.md` for a production deployment checklist.
 - See `docs/integration.md` for guidance on initializing users during signup/password-change flows.
-- See `docs/releasing.md` for GitHub + PyPI publishing steps.
 
-### Project Structure
+## Project Structure
 
 ```
 django-amnesia-honeywords/
 ├── src/django_honeywords/
+│   ├── admin.py             # Django admin registrations
 │   ├── apps.py              # Django app config
 │   ├── amnesia_service.py   # Core amnesia service
 │   ├── backend.py           # Authentication backend
+│   ├── checks.py            # Deployment system checks
 │   ├── conf.py              # Settings with defaults
 │   ├── events.py            # Event logging
 │   ├── generator.py         # Honeyword generation
 │   ├── models.py            # Database models
 │   ├── policy.py            # Reset/lock policies
 │   ├── signals.py           # Django signals
+│   ├── migrations/          # Database migrations
 │   └── management/commands/ # Management commands
+├── docs/                    # Configuration, deployment, integration guides
 ├── tests/                   # Test suite
 └── example_project/         # Example Django project for testing
 ```
@@ -307,3 +315,21 @@ django-amnesia-honeywords/
 ## License
 
 MIT License
+
+## Who do I talk to?
+
+Having problems? Email me: [davidiliopoulos@gmail.com](mailto:davidiliopoulos@gmail.com)
+
+## Citing this work
+
+If you use this repository for academic research, you are highly encouraged (though not
+required) to cite our paper:
+
+```bibtex
+@inproceedings{iliopoulos2026honeywords,
+  title={Honeywords in the Wild: A First Empirical Study of Deployment Readiness and Adoption},
+  author={Iliopoulos, David and Smaragdakis, Georgios and Dionysiou, Antreas},
+  booktitle={Proceedings of the 11th International Workshop on Traffic Measurements for Cybersecurity (WTMC)},
+  year={2026}
+}
+```

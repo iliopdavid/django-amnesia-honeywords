@@ -4,13 +4,13 @@ build-backend = "hatchling.build"
 
 [project]
 name = "django-amnesia-honeywords"
-version = "0.0.3"
+version = "0.0.4"
 description = "Amnesia honeywords implementation for Django — breach detection without a separate honeychecker."
 readme = "README.md"
 requires-python = ">=3.12"
 license = { text = "MIT" }
 authors = [
-  { name = "David Iliopoulos" }
+  { name = "David Iliopoulos", email = "davidiliopoulos@gmail.com" }
 ]
 classifiers = [
   "Development Status :: 3 - Alpha",
@@ -57,5 +57,6 @@ include = [
   "/example_project",
   "/README.md",
   "/LICENSE",
+  "/CITATION.cff",
   "/pyproject.toml",
 ]

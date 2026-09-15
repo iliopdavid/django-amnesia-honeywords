@@ -1,0 +1,30 @@
+cff-version: 1.2.0
+message: "If you use this software for academic research, please cite the paper below."
+title: django-amnesia-honeywords
+abstract: "A Django authentication backend implementing the Amnesia honeywords scheme for breach detection, without requiring a separate honeychecker service."
+type: software
+authors:
+  - family-names: Iliopoulos
+    given-names: David
+    email: davidiliopoulos@gmail.com
+  - family-names: Smaragdakis
+    given-names: Georgios
+  - family-names: Dionysiou
+    given-names: Antreas
+license: MIT
+repository-code: "https://github.com/iliopdavid/django-amnesia-honeywords"
+url: "https://pypi.org/project/django-amnesia-honeywords/"
+version: 0.0.4
+preferred-citation:
+  type: conference-paper
+  title: "Honeywords in the Wild: A First Empirical Study of Deployment Readiness and Adoption"
+  authors:
+    - family-names: Iliopoulos
+      given-names: David
+    - family-names: Smaragdakis
+      given-names: Georgios
+    - family-names: Dionysiou
+      given-names: Antreas
+  collection-title: "Proceedings of the 11th International Workshop on Traffic Measurements for Cybersecurity (WTMC)"
+  collection-type: proceedings
+  year: 2026
