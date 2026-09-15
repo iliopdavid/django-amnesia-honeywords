@@ -14,7 +14,7 @@ authors:
 license: MIT
 repository-code: "https://github.com/iliopdavid/django-amnesia-honeywords"
 url: "https://pypi.org/project/django-amnesia-honeywords/"
-version: 0.0.4
+version: 0.0.5
 preferred-citation:
   type: conference-paper
   title: "Honeywords in the Wild: A First Empirical Study of Deployment Readiness and Adoption"
