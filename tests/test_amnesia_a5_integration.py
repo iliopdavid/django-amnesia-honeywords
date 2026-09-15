@@ -345,6 +345,60 @@ def test_password_change_warning(settings, caplog):
     assert any("AmnesiaSet was not re-initialized" in msg for msg in caplog.messages)
 
 
+@pytest.mark.django_db
+def test_initialization_does_not_warn(settings, caplog):
+    """amnesia_initialize() must not trip its own desync warning.
+
+    It ends by calling set_unusable_password(), which fires the same pre_save
+    hook. Warning there would tell the operator to re-initialize the user they
+    just initialized.
+    """
+    settings.AUTHENTICATION_BACKENDS = ["django_honeywords.backend.HoneywordsBackend"]
+
+    User = get_user_model()
+    u = User.objects.create_user(username="quiet_init_user", password="OldPassword1")
+
+    with caplog.at_level(logging.WARNING, logger="django_honeywords.signals"):
+        amnesia_initialize(
+            u,
+            "RealPassword1",
+            k=5,
+            p_mark=0.0,
+            p_remark=0.0,
+            generator=FixedGenerator(["RealPassword1", "h1", "h2", "h3", "h4"]),
+            real_index=0,
+            rng=FixedRNG([0.9]),
+        )
+
+    assert caplog.messages == []
+
+
+@pytest.mark.django_db
+def test_reinitialization_does_not_warn(settings, caplog):
+    """Re-initializing must stay quiet too.
+
+    set_unusable_password() picks a fresh random salt each call, so the stored
+    password differs between the two runs even though both are unusable.
+    """
+    settings.AUTHENTICATION_BACKENDS = ["django_honeywords.backend.HoneywordsBackend"]
+
+    u = _make_user("quiet_reinit_user")
+
+    with caplog.at_level(logging.WARNING, logger="django_honeywords.signals"):
+        amnesia_initialize(
+            u,
+            "SecondPassword2",
+            k=5,
+            p_mark=0.0,
+            p_remark=0.0,
+            generator=FixedGenerator(["SecondPassword2", "h1", "h2", "h3", "h4"]),
+            real_index=0,
+            rng=FixedRNG([0.9]),
+        )
+
+    assert caplog.messages == []
+
+
 # ── exponential backoff lock test ────────────────────────────────────
 
 

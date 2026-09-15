@@ -18,6 +18,22 @@ class HoneywordsBackend(BaseBackend):
     Returns user on success, otherwise None.
     """
 
+    @staticmethod
+    def _mask_timing(password) -> None:
+        """Run the default hasher once to blunt timing side channels.
+
+        Django's own ModelBackend does this in its DoesNotExist branch so that
+        an attacker cannot distinguish an existing username from a nonexistent
+        one by response time (Django #20760). We do the same on every path that
+        returns before reaching amnesia_check(), so that "no such user" and
+        "locked / must_reset" do not answer measurably faster than a real
+        authentication attempt.
+
+        Note this reduces rather than removes the difference: a live,
+        unlocked user still costs up to k hash verifications.
+        """
+        get_user_model()().set_password(password)
+
     def user_can_authenticate(self, user) -> bool:
         """Mirror Django's default inactive-user handling.
 
@@ -42,11 +58,13 @@ class HoneywordsBackend(BaseBackend):
             # Respect custom user models and normalization rules.
             user = User._default_manager.get_by_natural_key(username)
         except User.DoesNotExist:
+            self._mask_timing(password)
             log_event(user=None, username=username, outcome=HoneywordEvent.OUTCOME_INVALID, request=request)
             return None
 
         # Respect Django's inactive-user semantics (and any custom override).
         if not self.user_can_authenticate(user):
+            self._mask_timing(password)
             log_event(user=user, username=username, outcome=HoneywordEvent.OUTCOME_INVALID, request=request)
             return None
 
@@ -54,6 +72,7 @@ class HoneywordsBackend(BaseBackend):
         state = get_state(user)
         locked = state.locked_until is not None and state.locked_until > timezone.now()
         if locked or state.must_reset:
+            self._mask_timing(password)
             log_event(user=user, username=username, outcome=HoneywordEvent.OUTCOME_INVALID, request=request)
             return None
 

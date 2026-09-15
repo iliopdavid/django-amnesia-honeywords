@@ -1,5 +1,6 @@
 import logging
 
+from django.contrib.auth.hashers import is_password_usable
 from django.dispatch import Signal
 
 logger = logging.getLogger(__name__)
@@ -16,6 +17,12 @@ def _on_user_password_change(sender, instance, **kwargs):
     """
     if not instance.pk:
         # New user being created — nothing to check yet
+        return
+
+    if not is_password_usable(instance.password):
+        # The password was set to unusable, which is what amnesia_initialize()
+        # itself does to block ModelBackend fallback. That is expected and does
+        # not desynchronize the AmnesiaSet, so stay quiet.
         return
 
     try:
